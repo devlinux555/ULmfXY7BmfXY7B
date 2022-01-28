@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: myapp
+  name: myapp-dep
+  labels:
+    app: myapp-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp-dep
+  template:
+    metadata:
+      labels:
+        app: myapp-dep
+    spec:
+      containers:
+        - name: myapp-dep
+          image: myapp:latest
+          env:
+            - name: ENV
+              value: "must-be-replaced-in-overlay"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          volumeMounts:
+            - mountPath: "/home/myapp-dep/config"
+              name: conf
+              readOnly: true
+      volumes:
+        - name: conf
+          configMap:
+            name: myapp-cm
+      imagePullSecrets:
+        - name: gitlab-regcred

@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: myapp
+  name: myapp-ing
+  annotations:
+    # use the shared ingress-nginx
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: error timeout http_502
+    nginx.ingress.kubernetes.io/retry-non-idempotent: true
+    nginx.ingress.kubernetes.io/keep-alive: 70
+    nginx.ingress.kubernetes.io/ssl-session-cache: shared:SSL:10m
+    nginx.ingress.kubernetes.io/ssl-session-timeout: 10m
+    cert-manager.io/cluster-issuer: "letsencrypt-myapp"
+spec:
+  tls:
+    - hosts:
+        - api.example.com
+        - www.example.com
+      secretName: myapp-tls
+  rules:
+    - host: api.example.com
+      http:
+        paths:
+          - path: /app/doc/core
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-svc
+                port:
+                  number: 8080
+    - host: www.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-svc
+                port:
+                  number: 8080

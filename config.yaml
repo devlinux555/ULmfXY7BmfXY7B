@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: myapp
+  name: myapp-cm
+data:
+  config.yaml: |
+    default:
+      http:
+        port: 8080
+      redis:
+        host: redis.example.com
+        port: 6379
+        prefix: lite-dev:dev
+      influx:
+        url: http://tmp.example.com
